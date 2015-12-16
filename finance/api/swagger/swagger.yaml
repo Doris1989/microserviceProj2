@@ -1,0 +1,224 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Finance Service
+# during dev, should point to your local machine
+host: localhost:10010
+# basePath prefixes all resource paths 
+basePath: /
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+  - text/html
+  - text/plain
+paths:
+  /getRecords:
+    x-swagger-router-controller: finance_controller
+    get:
+      description: Return all finance records
+      operationId: getFinanceRecords
+      tags:
+        - finance
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/FinanceResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /Finance:
+    x-swagger-router-controller: finance_controller
+    get:
+      description: Return the finance record in db according to given student id and school id
+      # used as the method name of the controller
+      operationId: getFinanceRecord
+      tags:
+        - finance
+      parameters:
+        - name: studentId
+          in: query
+          description: Id of the student 
+          required: true
+          type: integer
+        - name: schoolId
+          in: query
+          description: Id of the school
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/FinanceResponse"
+        "400":
+          description: Bad Request
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+    post:
+      description: Creates a new finance record.
+      operationId: createFinanceRecord
+      tags:
+        - finance
+      parameters:
+        - name: financerecord
+          in: body
+          description: finance record to create
+          required: true
+          schema:
+            $ref: '#/definitions/NewFinanceRecord'
+      responses:
+        "201":
+          description: new finance record is created
+          schema:
+            $ref: '#/definitions/FinanceRecord'
+        "400":
+          description: Bad Request
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      x-examples:
+        application/json: { "studentId": 1,
+                            "schoolId": 1,
+                            "schoolName": "Columbia University",
+                            "studentName": "Chengcheng Du",
+                            "tuition": 80000,
+                            "loan": 10000,
+                            "insurance": 2000,
+                            "equipmentFee": 2000,
+                            "awards": 5000}
+
+    put:
+      description: update finance record for a student of a school
+      # used as the method name of the controller
+      operationId: updateFinanceRecord
+      tags:
+        - finance
+      parameters:
+        - name: financerecord
+          in: body
+          description: The updated finance record information of a student at a school
+          required: true
+          schema:
+            $ref: '#/definitions/NewFinanceRecord'
+      responses:
+        "204":
+          description: finance record updated
+          schema: {
+            "type": "string"}
+        "400":
+          description: Bad Request
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+    delete:
+      description: deletes a finance record based on the student id and school id supplied
+      operationId: deleteStudent
+      tags:
+        - finance
+      parameters:
+        - name: studentId
+          in: query
+          description: ID of student
+          required: true
+          type: integer
+        - name: schoolId
+          in: query
+          description: ID of school
+          required: true
+          type: integer
+      responses:
+        "204":
+          description: finance record deleted
+          schema: {
+            "type": "string"}
+        "400":
+          description: Bad Request
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  FinanceResponse:
+    required:
+    - message
+    properties:
+      message:
+        type: string
+  FinanceRecord:
+    allOf:
+      - $ref: '#/definitions/FinanceRecord'
+      - required:
+        - studentId
+        - schoolId
+        properties:
+          studentId:
+            type: integer
+          schoolId:
+            type: integer
+          schoolName:
+            type: string
+          studentName:
+            type: string
+          tuition:
+            type: integer
+          loan:
+            type: integer
+          insurance:
+            type: integer
+          equipmentFee:
+            type: integer
+          awards:
+            type: integer
+  NewFinanceRecord:
+    required:
+      - studentId
+      - schoolId
+    properties:
+      studentId:
+        type: integer
+      schoolId:
+        type: integer
+      schoolName:
+        type: string
+      studentName:
+        type: string
+      tuition:
+        type: integer
+      loan:
+        type: integer
+      insurance:
+        type: integer
+      equipmentFee:
+        type: integer
+      awards:
+        type: integer
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
