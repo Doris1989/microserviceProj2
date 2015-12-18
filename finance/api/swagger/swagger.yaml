@@ -164,7 +164,7 @@ paths:
 definitions:
   FinanceResponse:
     required:
-    - message
+      - message
     properties:
       message:
         type: string
