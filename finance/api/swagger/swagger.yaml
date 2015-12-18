@@ -20,11 +20,11 @@ produces:
   - text/html
   - text/plain
 paths:
-  /getRecords:
+  /Finance:
     x-swagger-router-controller: finance_controller
     get:
       description: Return all finance records
-      operationId: getFinanceRecords
+      operationId: swaggergetFinanceRecords
       tags:
         - finance
       responses:
@@ -38,12 +38,10 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/ErrorResponse"
-  /Finance:
-    x-swagger-router-controller: finance_controller
     get:
       description: Return the finance record in db according to given student id and school id
       # used as the method name of the controller
-      operationId: getFinanceRecord
+      operationId: swaggergetFinanceRecord
       tags:
         - finance
       parameters:
@@ -73,7 +71,7 @@ paths:
 
     post:
       description: Creates a new finance record.
-      operationId: createFinanceRecord
+      operationId: swaggercreateFinanceRecord
       tags:
         - finance
       parameters:
@@ -108,7 +106,7 @@ paths:
     put:
       description: update finance record for a student of a school
       # used as the method name of the controller
-      operationId: updateFinanceRecord
+      operationId: swaggerupdateFinanceRecord
       tags:
         - finance
       parameters:
@@ -133,7 +131,7 @@ paths:
 
     delete:
       description: deletes a finance record based on the student id and school id supplied
-      operationId: deleteStudent
+      operationId: swaggerdeleteFinanceRecord
       tags:
         - finance
       parameters:
