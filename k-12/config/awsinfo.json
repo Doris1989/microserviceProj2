@@ -1,0 +1,7 @@
+{
+  "accessKey": "AKIAJN6NLY5JEH6ZZUFA",
+  "secretKey": "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",
+  "region": "us-east-1",
+  "queueUrl": "https://sqs.us-east-1.amazonaws.com/428198350609/k-12_request",
+  "topicARN": "arn:aws:sqs:us-east-1:428198350609:k-12_request"
+}
