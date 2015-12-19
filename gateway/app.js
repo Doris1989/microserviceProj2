@@ -1,7 +1,7 @@
 var express = require("express");
 var app = express();
 
-var awsInfo = require( "./awsInfo.json" );
+var awsInfo = require( "../../test/awsInfo.json" );
 
 // Require libraries.
 var aws = require( "aws-sdk" );
@@ -151,31 +151,135 @@ app.get('/getFinanceRecords', function (req, res) {
 
 		sendToSqs(awsInfo.queueUrl, finance_params);
 
-	    //res.send('getFinanceRecords: ' + finance_params);
-
 	    getFromSqs(cid_qurl, function(response){
 	    	res.send(response);
 	    });
-
-	    //res.send(finance_response);
 	});
 	
 })
 
 app.get('/getFinanceRecord', function (req, res) {
-	res.send("finance");
+	var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var finance_params = {
+            body:{cid : cid, studentId : req.query.fr_stu_id, schoolId : req.query.fr_sch_id},
+            action: "getFinanceRecord",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(finance_params));
+
+        sendToSqs(awsInfo.queueUrl, finance_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
 })
 
 app.get('/updateFinanceRecord', function (req, res) {
-	res.send("finance");
+	var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var finance_params = {
+            body:{cid : cid, studentId : req.query.fu_stu_id, schoolId : req.query.fu_sch_id},
+            action: "updateFinanceRecord",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(finance_params));
+
+        sendToSqs(awsInfo.queueUrl, finance_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
 })
 
 app.get('/deleteFinanceRecord', function (req, res) {
-	res.send("finance");
+	var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var finance_params = {
+            body:{cid : cid, studentId : req.query.fd_stu_id, schoolId : req.query.fd_stu_id},
+            action: "deleteFinanceRecord",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(finance_params));
+
+        sendToSqs(awsInfo.queueUrl, finance_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
 })
 
-app.get('/deleteFinanceRecord', function (req, res) {
-	res.send("finance");
+app.get('/createFinanceRecord', function (req, res) {
+	var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var finance_params = {
+            body:{cid : cid, studentId : req.query.fc_stu_id, schoolId : req.query.fc_stu_id},
+            action: "createFinanceRecord",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(finance_params));
+
+        sendToSqs(awsInfo.queueUrl, finance_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
 })
 
 var server = app.listen(9999, function () {
