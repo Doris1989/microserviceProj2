@@ -84,6 +84,13 @@ var deleteMessage = Q.nbind( sqs.deleteMessage, sqs );
 // continuously poll from queue
 // ---------------------------------------------------------- //
 
+function workflowError( type, error ) {
+
+    error.type = type;
+
+    return( error );
+
+}
 
 // When pulling messages from Amazon SQS, we can open up a long-poll which will hold open
 // until a message is available, for up to 20-seconds. If no message is returned in that
