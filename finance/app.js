@@ -79,6 +79,13 @@ var sqs = new AWS.SQS({
 var receiveMessage = Q.nbind( sqs.receiveMessage, sqs );
 var deleteMessage = Q.nbind( sqs.deleteMessage, sqs );
 
+function workflowError( type, error ) {
+
+    error.type = type;
+
+    return( error );
+
+};
 
 // ---------------------------------------------------------- //
 // continuously poll from queue
