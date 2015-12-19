@@ -107,8 +107,8 @@ var deleteMessage = Q.nbind( sqs.deleteMessage, sqs );
             // If there are no message, throw an error so that we can bypass the
             // subsequent resolution handler that is expecting to have a message
             // delete confirmation.
-            if ( ! data.Messages ) {
-
+            if (! data.Messages ) {
+                pollQueueForMessages(); 
                 throw(
                     workflowError(
                         "EmptyQueue",
@@ -155,7 +155,7 @@ var deleteMessage = Q.nbind( sqs.deleteMessage, sqs );
             // can be handled by another receiver.
             return(
                 deleteMessage({
-                    ReceiptHandle: data.Messages[ 0 ].ReceiptHandle
+                    ReceiptHandle: data.Messages[0].ReceiptHandle
                 })
             );
 
@@ -245,7 +245,7 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
         });
     });
     var port = 10010;
-    
+
     app.listen(port);
 
 });

@@ -1,1 +1,1 @@
-Place your controllers in this directory.
+finance controller
