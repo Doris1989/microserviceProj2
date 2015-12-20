@@ -8,10 +8,18 @@
   "license": "",
   "main": "app.js",
   "dependencies": {
-    "aws-sdk": "^2.2.24",
-    "dynamodb-model": "0.0.2",
+    "aws-sdk": "^2.2.22",
+    "body-parser": "^1.14.1",
+    "chalk": "^1.1.1",
+    "events": "^1.1.0",
     "express": "^4.12.3",
-    "swagger-express-mw": "^0.1.0"
+    "express-mongoose": "^0.1.0",
+    "http": "0.0.0",
+    "mongoose": "^4.3.1",
+    "q": "^1.4.1",
+    "swagger-express-mw": "^0.1.0",
+    "swagger-tools": "^0.9.9",
+    "util": "^0.10.3"
   },
   "devDependencies": {
     "should": "^7.1.0",

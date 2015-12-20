@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: K12 Service
 # during dev, should point to your local machine
 host: localhost:10010
 # basePath prefixes all resource paths 
@@ -17,27 +17,144 @@ consumes:
 # format of the responses to the client (Accepts)
 produces:
   - application/json
+  - text/html
+  - text/plain
+
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
+  /AllK12:
+    x-swagger-router-controller: k12_controller
     get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
-      parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
+      description: Return all k12 records
+      operationId: swaggergetK12Records
+      tags:
+        - K12s
       responses:
         "200":
           description: Success
           schema:
             # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
+            $ref: "#/definitions/K12Response"
         # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /K12:
+    x-swagger-router-controller: k12_controller
+    get:
+      description: Return the K12 record in db according to given student id and school id
+      # used as the method name of the controller
+      operationId: swaggergetK12Record
+      tags:
+        - K12
+      parameters:
+        - name: studentId
+          in: query
+          description: Id of the student 
+          required: true
+          type: integer
+        - name: schoolId
+          in: query
+          description: Id of the school
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/K12Response"
+        "400":
+          description: Bad Request
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+    post:
+      description: Creates a new K12 record.
+      operationId: swaggercreateK12Record
+      tags:
+        - K12
+      parameters:
+        - name: K12record
+          in: body
+          description: The new K12 record information of a student at a school
+          required: true
+          schema:
+            $ref: '#/definitions/K12Record'
+      responses:
+        "201":
+          description: new K12 record is created
+          schema:
+            $ref: '#/definitions/K12Record'
+        "400":
+          description: Bad Request
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      x-examples:
+        application/json: { "studentId": 1,
+                            "schoolId": 1,
+                            "schoolName": "Columbia University",
+                            "studentName":2015 "Chengcheng Du",
+                            "startYear": 2014,
+                            "endYear": 10000,
+                            "graduated": "true",
+                            "degree": "CS"
+                            }
+
+    put:
+      description: update K12 record for a student of a school
+      # used as the method name of the controller
+      operationId: swaggerupdateK12Record
+      tags:
+        - K12
+      parameters:
+        - name: K12record
+          in: body
+          description: The updated K12 record information of a student at a school
+          required: true
+          schema:
+            $ref: '#/definitions/NewK12Record'
+      responses:
+        "204":
+          description: K12 record updated
+          schema: {
+            "type": "string"}
+        "400":
+          description: Bad Request
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+    delete:
+      description: deletes a K12 record based on the student id and school id supplied
+      operationId: swaggerdeleteK12Record
+      tags:
+        - K12
+      parameters:
+        - name: studentId
+          in: query
+          description: ID of student
+          required: true
+          type: integer
+        - name: schoolId
+          in: query
+          description: ID of school
+          required: true
+          type: integer
+      responses:
+        "204":
+          description: K12 record deleted
+          schema: {
+            "type": "string"}
+        "400":
+          description: Bad Request
         default:
           description: Error
           schema:
@@ -46,11 +163,74 @@ paths:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
-    required:
-      - message
+  K12Response:
     properties:
       message:
+        type: string
+  # K12Record:
+  #   required:
+  #     - studentId
+  #     - schoolId
+  #   properties:
+  #     studentId:
+  #       type: integer
+  #     schoolId:
+  #       type: integer
+  #     val:
+  #       type: string
+  # NewK12Record:
+  #   required:
+  #     - studentId
+  #     - schoolId
+  #   properties:
+  #     studentId:
+  #       type: integer
+  #     schoolId:
+  #       type: integer
+  #     val:
+  #       type: string
+  K12Record:
+    allOf:
+      - required:
+        - studentId
+        - schoolId
+        properties:
+          studentId:
+            type: integer
+          schoolId:
+            type: integer
+          schoolName:
+            type: string
+          studentName:
+            type: string
+          startYear:
+            type: integer
+          endYear:
+            type: integer
+          graduated:
+            type: string
+          degree:
+            type: string
+  NewK12Record:
+    required:
+      - studentId
+      - schoolId
+    properties:
+      studentId:
+        type: integer
+      schoolId:
+        type: integer
+      schoolName:
+        type: string
+      studentName:
+        type: string
+      startYear:
+        type: integer
+      endYear:
+        type: integer
+      graduated:
+        type: string
+      degree:
         type: string
   ErrorResponse:
     required:

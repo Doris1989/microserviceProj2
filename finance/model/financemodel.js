@@ -1,21 +1,12 @@
 
 var mongoose = require('mongoose');
 
-//connect to database
-mongoose.connect('mongodb://localhost/microservice');
-
-// var Schema=mongoose.Schema;
-// var Course_Schema = new Schema({},{strict:false});
-
-var Schema = mongoose.Schema
-
- 
-var finance = new Schema({
+var finance = new mongoose.Schema({
    	_id	: Number //_id is studentId
   , schoolId : Number
   , schoolName : String
   , studentName : String
-  , tuition : Number  
+  , tuition : Number
   , loan	: Number
   , insurance	: Number
   , equipmentFee : Number

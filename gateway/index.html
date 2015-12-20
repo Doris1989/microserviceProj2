@@ -1,0 +1,60 @@
+<html>
+<body>
+<form>
+Client ID: <input type="text" name="cid">  <br>
+
+<p>Get finance records</p>
+<div id="div-frs">
+	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getFinanceRecords'">
+</div>
+
+<p>Get finance record</p>
+<div id="div-fr">
+	Student ID: <input type="text" name="fr_stu_id">
+	School ID: <input type="text" name="fr_sch_id"> <br>
+	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getFinanceRecord'">
+</div>
+
+<p>Update finance record</p>
+<!--schoolName: body.schoolName,
+	studentName : body.studentName,
+	tuition : body.tuition,
+	loan : body.loan,
+	insurance : body.insurance,
+	equipmentFee : body.equipmentFee,
+	awards-->
+<div id="div-fu">
+	Student ID: <input type="text" name="fu_stu_id">
+	School ID: <input type="text" name="fu_sch_id"> <br>
+	Student Name: <input type="text" name="fu_stu_name"> <br>
+	School Name: <input type="text" name="fu_sch_name"> <br>
+	Tuition: <input type="text" name="fu_tuition">
+	Loan: <input type="text" name="fu_loan"> <br>
+	EquipmentFee: <input type="text" name="fu_equip">
+	Awards: <input type="text" name="fu_awards"> <br>
+	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/updateFinanceRecord'">
+</div>
+
+<p>Delete finance record</p>
+<div id="div-fd">
+	Student ID: <input type="text" name="fd_stu_id">
+	School ID: <input type="text" name="fd_sch_id"> <br>
+	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/deleteFinanceRecord'">
+</div>
+
+<p>Create finance record</p>
+<div id="div-fc">
+	Student ID: <input type="text" name="fc_stu_id">
+	School ID: <input type="text" name="fc_sch_id"> <br>
+	Student Name: <input type="text" name="fc_stu_name"> <br>
+	School Name: <input type="text" name="fc_sch_name"> <br>
+	Tuition: <input type="text" name="fc_tuition">
+	Loan: <input type="text" name="fc_loan"> <br>
+	EquipmentFee: <input type="text" name="fc_equip">
+	Awards: <input type="text" name="fc_awards"> <br>
+	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/createFinanceRecord'">
+</div>
+
+</form>
+</body>
+</html>

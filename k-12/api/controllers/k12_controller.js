@@ -1,282 +1,340 @@
 //Import the Data Models
-var K12 = require('../../model/k-12model');
+var K12 = require('../../model/k-12model')
+var AWS = require("aws-sdk");
+
+AWS.config.update({
+  region: "us-east-1",
+  endpoint: "https://dynamodb.us-east-1.amazonaws.com"
+});
+
+var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
+
+var table = "K12";
 
 
 module.exports = {
-  getFinanceRecords: getFinanceRecords,
-  getFinanceRecord: getFinanceRecord,
-  updateFinanceRecord: updateFinanceRecord,
-  deleteFinanceRecord: deleteFinanceRecord,
-  createFinanceRecord: createFinanceRecord,
-  swaggergetFinanceRecords: swaggergetFinanceRecords,
-  swaggergetFinanceRecord: swaggergetFinanceRecord,
-  swaggercreateFinanceRecord: swaggercreateFinanceRecord,
-  swaggerupdateFinanceRecord: swaggerupdateFinanceRecord,
-  swaggerdeleteFinanceRecord: swaggerdeleteFinanceRecord 
+  getK12Records: getK12Records,
+  getK12Record: getK12Record,
+  updateK12Record: updateK12Record,
+  deleteK12Record: deleteK12Record,
+  createK12Record: createK12Record,
+  swaggergetK12Records: swaggergetK12Records,
+  swaggergetK12Record: swaggergetK12Record,
+  swaggercreateK12Record: swaggercreateK12Record,
+  swaggerupdateK12Record: swaggerupdateK12Record,
+  swaggerdeleteK12Record: swaggerdeleteK12Record
 };
 
 
-//response {"message" : "", "status" : 500, "data" : ""}
-//To do: design request
-//request {"body":{}, "action": "getFinanceRecords", "responseQURL": "", "responseQTopicARN": ""}
-// request example:
-//  {"body" : {"studentId":1, "schoolId":1, "schoolName":"Columbia University", "studentName": "Chencheng Du",
-//              "tuition": 50000, "loan" : 10000, "insurance":5000, "equipmentFee":2000, "awards": 50000}, 
-//   "action": "getFinanceRecord", "responseQURL": "", "responseQTopicARN": ""}
-//
-
-function getFinanceRecords(msg) {
-  //To do: need to get response queue info from msg
-  Finance.find({}, function (err, data) {
-    var res = {"message" : "", "status" : 500, "data" : ""};
-    if(err) {
-      res.message = err.message;
-      res.status = err.statusCode;
-    }
-    //successful
-    else {
-      res.status = 200;
-      res.message = "Successfully get finance records.";
-      res.data = data;
-    }
-    //To do: send res to queue
-    console.log(res);
-  });
-}
-
-
-
-function getFinanceRecord(msg) { //get finance record by student id and school id
-  var body = msg.body;
-  var stuId = body.studentId;
-  var schId = body.schoolId;
-  var res = {"message" : "", "status" : 500, "data" : {}};
-
-  Finance.find({_id : stuId, schoolId : schId}, function (err, data) {
-    if(err) {
-      res.message = err.message;
-      res.status = err.statusCode;
-    }
-    else if(!data || data.length == 0) {
-      res.status = 400;
-      res.message = 'No finance record found. Bad Request.';
-    }
-    else {
-      res.status = 200;
-      res.message = "Successful";
-      res.data = data;
-    }
-    //To do: send res to queue
-    console.log(res);
-  });
-}
-
-
-function createFinanceRecord(msg) {
-  var body = msg.body;
-  var res = {"message" : "", "status" : 500, "data" : {}};
-  var newRecord = new Finance({ _id : body.studentId,
-                                schoolId : body.schoolId,
-                                schoolName : body.schoolName,
-                                studentName : body.studentName,
-                                tuition : body.tuition,
-                                loan : body.loan,
-                                insurance : body.insurance,
-                                equipmentFee : body.equipmentFee,
-                                awards : body.awards});
-  Finance.find({_id : body.studentId, schoolId : body.schoolId}, function (err, data) {
-    if(err) {
-      res.message = err.message;
-      res.status = err.statusCode;
-      //To do: send res to queue
-    }
-    else if(data.length != 0) {
-      res.status = 400;
-      res.message = 'Duplicate record found. Bad Request.';
-      //To do: send res to queue
-    }
-    else {
-      newRecord.save(function (err, newRecord, data) {
-        if(err) {
-          res.status = err.statusCode;
-          res.message = err.message;
+function getK12Records(msg) {
+    var body = msg.body;
+    var res = {"message" : "", "status" : 500, "data" : {}};
+    var params = {
+      TableName: table
+    };
+    console.log("Scanning table.");
+    dynamodbDoc.scan(params, onScan);
+    function onScan(err, data) {
+        if (err) {
+            console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+            res.message = err.message;
+            res.status = err.statusCode;
+        } else {
+            console.log("Scan succeeded.");
+            console.log(data);
         }
-        else {
-          res.status = 201;
-          res.message = "Successfully created new finance record.";
-          res.data = data;
-          //To do: send res to queue
-          console.log(res);
-        }
-      });
-    }
-  });
-}
-
-
-
-
-function updateFinanceRecord(msg) {
-  var body = msg.body;
-  var res = {"message" : "", "status" : 500, "data" : {}};
-  Finance.update({_id : body.studentId, schoolId : body.schoolId}, 
-                              { schoolName : body.schoolName,
-                                studentName : body.studentName,
-                                tuition : body.tuition,
-                                loan : body.loan,
-                                insurance : body.insurance,
-                                equipmentFee : body.equipmentFee,
-                                awards : body.awards}, function (err, data) {
-                                  if(data['nModified'] == 0) {
-                                    res.message = "No finance record found. Cannot do update. Bad Request.";
-                                    res.status = 400;
-                                  }
-                                  if(err) {
-                                    res.message = err.message;
-                                    res.status = err.statusCode;
-                                  }
-                                  else {
-                                    res.status = 204; //put
-                                    res.message = "Successfully update finance record.";
-                                    res.data = data;
-                                    console.log(res);
-                                  }
-                                  //To do: send res to queue
-  });
-}
-
-
-function deleteFinanceRecord(msg) {
-  var body = msg.body;
-  var stuId = body.studentId;
-  var schId = body.schoolId;
-  var res = {"message" : "", "status" : 500, "data" : {}};
-
-  Finance.find({_id : stuId, schoolId : schId}, function (err, data) {
-    if(err) {
-      res.status = err.statusCode;
-      res.message = err.message;
-      //To do: send res to queue
-    }
-    else if(!data || data.length == 0) {
-      res.message = "No finance record found. Bad Request.";
-      res.status = 400;
-      //To do: send res to queue
-    }
-    else {
-      Finance.remove({_id : stuId, schoolId : schId}, function (err, data) {
-        if(err) {
-          res.status = err.statusCode;
-          res.message = err.message;
-        }
-        else {
-          res.status = 204;
-          res.message = "Successfully delete finance record.";
-          res.data = data;
-        }
-        //To do: send res to queue
+        res.status = 200;
+        //To do:  res to queue
         console.log(res);
-      });
-    }  
-  });
+    }
 }
 
 
-function swaggergetFinanceRecords(req, res, next) {
-  //console.log(request);
-  Finance.find({}, function(err, data) {
-    if(err) return next(err);
-    res.json(data);
-  });
+
+function getK12Record(msg) { //get finance record by student id and school id
+  var body = msg.body;
+  var stuId = body.stuId;
+  var schId = body.schId;
+  var res = {"message" : "", "status" : 500, "data" : {}};
+  var params = {
+    TableName: table,
+    ProjectionExpression: "#cid, #sid",
+    FilterExpression: "#cid = :findcid and #sid = :findsid",
+    ExpressionAttributeNames: {
+        "#cid": "studentId",
+        "#sid": "schoolId"
+    },
+    ExpressionAttributeValues: {
+         ":findcid": stuId,
+         ":findsid": schId
+    }
+  };
+
+  console.log("Scanning table.");
+  dynamodbDoc.scan(params, onScan);
+
+  function onScan(err, data) {
+      if (err) {
+          console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+          res.message = err.message;
+          res.status = err.statusCode;
+      } else {
+          // print all the movies
+          console.log("Scan succeeded.");
+          console.log(data);
+      }
+      res.status = 200;
+      //To do:  res to queue
+      console.log(res);
+  }
 }
 
 
-function swaggergetFinanceRecord(req, res, next) { //get finance record by student id and school id
+function createK12Record(msg) {
+  var body = msg.body;
+  var res = {"message" : "", "status" : 500, "data" : {}};
+  var params={
+    TableName:table,
+    Item: body
+  };
+  console.log("Adding a new item...");
+  dynamodbDoc.put(params, function(err, data) {
+      if (err) {
+          console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+          res.message = err.message;
+          res.status = err.statusCode;
+      } else {
+          console.log("Added item:", JSON.stringify(data, null, 2));
+      }
+  });
+  res.status = 201;
+  //To do:  res to queue
+  console.log(res);
+}
+
+
+
+
+function updateK12Record(msg) {
+  var body = msg.body;
+  var res = {"message" : "", "status" : 500, "data" : {}};
+  var params = {
+      TableName:table,
+      Key:{
+          "studentId": body.studentId,
+          "schoolId": body.schoolId
+      },
+      UpdateExpression: "SET schoolName=:newschoolname, studentName=:newstudentname, startYear=:newsyear, endYear=:neweyear, graduated=:newgrad, degree=:newdegree",
+      ExpressionAttributeValues:{
+          ":newschoolname": body.schoolName,
+          ":newstudentname": body.studentName,
+          ":newsyear": body.startYear,
+          ":neweyear": body.endYear,
+          ":newgrad": body.graduated,
+          ":newdegree": body.degree
+      },
+      // ReturnValues:"UPDATED_NEW"
+  };
+
+  console.log("Attempting a conditional update...");
+  dynamodbDoc.update(params, function(err, data) {
+      if (err) {
+          console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+          res.message = err.message;
+          res.status = err.statusCode;
+      } else {
+          console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+          res.status=204;
+      }
+  });
+  //To do:  res to queue
+  console.log(res);
+}
+
+
+function deleteK12Record(msg) {
+  var body = msg.body;
+  var res = {"message" : "", "status" : 500, "data" : {}};
+  var stuId = body.stuId;
+  var schId = body.schId;
+
+  var params = {
+    TableName: table,
+    Key:{
+        "studentId":stuId,
+        "schoolId":schId
+    }
+  };
+  console.log("Attempting a conditional delete...");
+  dynamodbDoc.delete(params, function(err, data) {
+      if (err) {
+          console.error("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
+          res.message = err.message;
+          res.status = err.statusCode;
+      } else {
+          console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
+          res.status=204;
+      }
+  });
+  //To do:  res to queue
+  console.log(res);
+}
+
+
+function swaggergetK12Records(req, res, next) {
+
+  var params = {
+    TableName: table
+  };
+
+  console.log("Scanning table.");
+  dynamodbDoc.scan(params, onScan);
+
+  function onScan(err, data) {
+      if (err) {
+          console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+          var error = new Error('No k12 record found. Bad Request.');
+          error.statusCode = 400;
+          return next(error);
+      } else {
+          // print all the movies
+          console.log("Scan succeeded.");
+          console.log(data);
+      }
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200);
+      res.end(JSON.stringify(data));
+  }
+}
+
+
+function swaggergetK12Record(req, res, next) { //get finance record by student id and school id
   var stuId = req.swagger.params.studentId.value;
   var schId = req.swagger.params.schoolId.value;
-  Finance.find({_id : stuId, schoolId : schId}, function(err, data) {
-    if(err) return next(err);
-    else if(!data || data.length == 0) {
-      var error = new Error('No finance record found. Bad Request.');
-      error.statusCode = 400;
-      return next(error);
+
+  var params = {
+    TableName: table,
+    ProjectionExpression: "#cid, #sid",
+    FilterExpression: "#cid = :findcid and #sid = :findsid",
+    ExpressionAttributeNames: {
+        "#cid": "studentId",
+        "#sid": "schoolId"
+    },
+    ExpressionAttributeValues: {
+         ":findcid": stuId,
+         ":findsid": schId
     }
-    res.status(200);
-    res.json(data);
-  });
+  };
+
+  console.log("Scanning table.");
+  dynamodbDoc.scan(params, onScan);
+
+  function onScan(err, data) {
+      if (err) {
+          console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+          var error = new Error('No k12 record found. Bad Request.');
+          error.statusCode = 400;
+          return next(error);
+      } else {
+          // print all the movies
+          console.log("Scan succeeded.");
+          console.log(data);
+      }
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200);
+      res.end(JSON.stringify(data));
+  }
+
 }
 
 
-function swaggercreateFinanceRecord(req, res, next) {
-  var body = req.swagger.params.financerecord.value;
-  var newRecord = new Finance({ _id : body.studentId,
-                                schoolId : body.schoolId,
-                                schoolName : body.schoolName,
-                                studentName : body.studentName,
-                                tuition : body.tuition,
-                                loan : body.loan,
-                                insurance : body.insurance,
-                                equipmentFee : body.equipmentFee,
-                                awards : body.awards});
-  Finance.find({_id : body.studentId, schoolId : body.schoolId}, function(err, data) {
-    if(err) return next(err);
-    else if(data.length != 0) {
-      var error = new Error("Duplicate record found. Bad Request.");
-      error.statusCode = 400;
-      return next(error);
-    }
-    else {
-      newRecord.save(function(err, newRecord, data) {
-        res.setHeader('Content-Type', 'application/json');
-        res.status(201);
-        res.json("Successfully created new finance record.");
-      });
-    }
+function swaggercreateK12Record(req, res, next) {
+  var body = req.swagger.params.K12record.value;
+  var params={
+    TableName:table,
+    Item: body
+  };
+  console.log("Adding a new item...");
+  dynamodbDoc.put(params, function(err, data) {
+      if (err) {
+          console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400);
+          res.json("Error creating new k12 record.");
+          return next(error);
+      } else {
+          console.log("Added item:", JSON.stringify(data, null, 2));
+      }
   });
-}
-
-
-
-function swaggerupdateFinanceRecord(req, res, next) {
-  var body = req.swagger.params.financerecord.value;
-  Finance.update({_id : body.studentId, schoolId : body.schoolId}, 
-                              { schoolName : body.schoolName,
-                                studentName : body.studentName,
-                                tuition : body.tuition,
-                                loan : body.loan,
-                                insurance : body.insurance,
-                                equipmentFee : body.equipmentFee,
-                                awards : body.awards}, function(err, data) {
-                                  if(data['nModified'] == 0) {
-                                    var error = new Error("No finance record found. Cannot do update. Bad Request.");
-                                    error.statusCode = 400;
-                                    return next(error);
-                                  }
-                                  if(err) return next(err);
-                                  res.status(204); //put
-                                  res.setHeader('Content-Type', 'application/json');
-                                  res.json("Successfully update finance record.");
-  });
+  res.setHeader('Content-Type', 'application/json');
+  res.status(201);
+  res.json("Successfully created new k12 record.");
 }
 
 
 
-function swaggerdeleteFinanceRecord(req, res, next) {
-  Finance.find({_id : req.swagger.params.studentId.value, schoolId: req.swagger.params.schoolId.value}, function (err, data) {
-    if(err) return next(err);
-    else if(!data || data.length == 0) {
-      var error = new Error ("Duplicate finance record found. Bad Request.");
-      error.statusCode = 400;
-      return next(error);
+function swaggerupdateK12Record(req, res, next) {
+  var body = req.swagger.params.K12record.value;
+  var params = {
+      TableName:table,
+      Key:{
+          "studentId": body.studentId,
+          "schoolId": body.schoolId
+      },
+      UpdateExpression: "SET schoolName=:newschoolname, studentName=:newstudentname, startYear=:newsyear, endYear=:neweyear, graduated=:newgrad, degree=:newdegree",
+      ExpressionAttributeValues:{
+          ":newschoolname": body.schoolName,
+          ":newstudentname": body.studentName,
+          ":newsyear": body.startYear,
+          ":neweyear": body.endYear,
+          ":newgrad": body.graduated,
+          ":newdegree": body.degree
+      },
+      // ReturnValues:"UPDATED_NEW"
+  };
+
+  console.log("Attempting a conditional update...");
+  dynamodbDoc.update(params, function(err, data) {
+      if (err) {
+          console.error("Unable to update item. Error JSON:", JSON.stringify(err, null, 2));
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400);
+          res.json("Error updating new k12 record.");
+          return next(error);
+      } else {
+          console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+          res.status(204); //put
+          res.setHeader('Content-Type', 'application/json');
+          res.json("Successfully update k12 record.");
+      }
+  });
+}
+
+
+
+function swaggerdeleteK12Record(req, res, next) {
+  var stuId = req.swagger.params.studentId.value;
+  var schId = req.swagger.params.schoolId.value;
+
+  var params = {
+    TableName: table,
+    Key:{
+        "studentId":stuId,
+        "schoolId":schId
     }
-    else {
-      Finance.remove({_id: req.swagger.params.studentId.value, schoolId : req.swagger.params.schoolId.value}, function (err, data) {
-        if(err) return next(err);
-        else {
+  };
+  console.log("Attempting a conditional delete...");
+  dynamodbDoc.delete(params, function(err, data) {
+      if (err) {
+          console.error("Unable to delete item. Error JSON:", JSON.stringify(err, null, 2));
+          res.setHeader('Content-Type', 'application/json');
+          res.status(400);
+          res.json("Error deleting new k12 record.");
+          return next(error);
+      } else {
+          console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
           res.status(204);
-          res.json("Successfully delete finance record.");
-        }
-      });
-    }
+          res.json("Successfully deleted k12 record.");
+      }
   });
 }

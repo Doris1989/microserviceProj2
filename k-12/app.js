@@ -113,7 +113,7 @@ function workflowError( type, error ) {
             if ( ! data.Messages ) {
 
                 throw(
-                    var workflowError(
+                     workflowError(
                         "EmptyQueue",
                         new Error( "There are no messages to process." )
                     )
@@ -124,25 +124,25 @@ function workflowError( type, error ) {
                 var message = data.Messages[0].Body;
                 msg = JSON.parse(message);
                 console.log(msg);
-                if(msg.action == "getFinanceRecords") {
-                    console.log("Call getFinanceRecords function:");
-                    controller.getFinanceRecords(msg);
+                if(msg.action == "getK12Records") {
+                    console.log("Call getK12Records function:");
+                    controller.getK12Records(msg);
                 }
-                else if(msg.action == "getFinanceRecord") {
-                    console.log("Call getFinanceRecord function:");
-                    controller.getFinanceRecord(msg);
+                else if(msg.action == "getK12Record") {
+                    console.log("Call getK12Record function:");
+                    controller.getK12Record(msg);
                 }
-                else if(msg.action == "updateFinanceRecord") {
-                    console.log("Call updateFinanceRecord function:");
-                    controller.updateFinanceRecord(msg);
+                else if(msg.action == "updateK12Record") {
+                    console.log("Call updateK12Record function:");
+                    controller.updateK12Record(msg);
                 }
-                else if(msg.action == "createFinanceRecord") {
-                    console.log("Call createFinanceRecord function : ");
-                    controller.createFinanceRecord(msg);
+                else if(msg.action == "createK12Record") {
+                    console.log("Call createK12Record function : ");
+                    controller.createK12Record(msg);
                 }
                 else {//msg.action == "deleteFinanceRecord"
-                    console.log("Call deleteFinanceRecord function:");
-                    controller.deleteFinanceRecord(msg);
+                    console.log("Call deleteK12Record function:");
+                    controller.deleteK12Record(msg);
                 }
             }
 
@@ -222,35 +222,33 @@ var sendMessageToSQS = function(req) {
 
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
+  app.use(SwaggerUi(swaggerExpress.runner.swagger));
   if (err) { throw err; }
+
   // install middleware
-    swaggerExpress.register(app);
-    app.use(SwaggerUi(swaggerExpress.runner.swagger));
+  swaggerExpress.register(app);
+  // var port = process.env.PORT || 10010;
+  // app.listen(port);
+  app.listen(10010);
 
-// a middleware with no mount path; gets executed for every request to the app
+});
 
-    // app.use('/Finance', function (req, res, next) {
-    // //     //sendMessageToSQS(JSON.stringify({}));
-    //     console.log("got the request here.");
-    //     pollQueueForMessages(res);
-    //     console.log("msg is : ");
-    //     console.log(msg);
-    //     res.end('Hello World\n');
-    //     next();
-    // });
-
-    //error handle
+if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
-            message : err.message,
-            error : {}
+            message: err.message,
+            error: err
         });
     });
-    var port = 10010;
-    
-    app.listen(port);
+}
 
+app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+        message: err.message,
+        error: {}
+    });
 });
 
 
