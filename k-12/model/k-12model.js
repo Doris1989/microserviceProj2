@@ -12,28 +12,6 @@ AWS.config.update({
 });
 
 
-// //use studentId and schoolId as primary key
-// var k12Schema = new DynamoDBModel.Schema({
-// 	studentId : {
-// 		type: Number,
-// 		key: 'hash'
-// 	},
-// 	schoolId : {
-// 		type: Number,
-// 		key: 'range'
-// 	},
-// 	studentName : String,
-// 	schoolName : String,
-// 	startYear : Number,
-// 	endYear : Number, //0 if not graduated yet
-// 	isGraduated : Boolean,
-// 	currentEnroll : Boolean,
-// 	degree : String
-// });
-//
-// //module.exports=mongoose.model('finance',finance);
-// var k12 = new DynamoDBModel.Model('k12', k12Schema);
-
 AWS.config.update({
   endpoint: "https://dynamodb.us-east-1.amazonaws.com"
 });
@@ -61,10 +39,11 @@ var params = {
     }
 };
 
-dynamodb.createTable(params, function(err, data) {
-    if (err) {
-        console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
-    } else {
-        console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
-    }
-});
+// already created
+// dynamodb.createTable(params, function(err, data) {
+//     if (err) {
+//         console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
+//     } else {
+//         console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
+//     }
+// });

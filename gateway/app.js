@@ -1,7 +1,7 @@
 var express = require("express");
 var app = express();
 
-var awsInfo = require( "../../test/awsInfo.json" );
+var awsInfo = require( "./awsInfo.json" );
 
 // Require libraries.
 var aws = require( "aws-sdk" );

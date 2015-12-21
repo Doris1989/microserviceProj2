@@ -1,6 +1,44 @@
 //Import the Data Models
 var Finance = require('../../model/financemodel');
+var awsInfo = require( "../../config/awsinfo.json" );
 
+// Require libraries.
+var aws = require( "aws-sdk" );
+var Q = require( "q" );
+var chalk = require( "chalk" );
+
+// Create an instance of our SQS Client.
+var sqs = new aws.SQS({
+    region: awsInfo.region,
+    accessKeyId: awsInfo.accessKey,
+    secretAccessKey: awsInfo.secretKey,
+});
+
+var sendMessage = Q.nbind( sqs.sendMessage, sqs );
+
+
+sendToSqs = function(qurl, sqs_params){
+    sendMessage({
+        MessageBody: JSON.stringify(sqs_params),
+        QueueUrl: qurl
+    })
+    .then(
+        function handleSendResolve( data ) {
+
+            console.log( chalk.green( "Message sent:", data.MessageId ) );
+
+        }
+    )
+
+    // Catch any error (or rejection) that took place during processing.
+    .catch(
+        function handleReject( error ) {
+
+            console.log( chalk.red( "Unexpected Error:", error.message ) );
+
+        }
+    );
+}
 
 module.exports = {
   getFinanceRecords: getFinanceRecords,
@@ -41,6 +79,7 @@ function getFinanceRecords(msg) {
     }
     //To do: send res to queue
     console.log(res);
+    sendToSqs(msg.responseQURL, res);
   });
 }
 
@@ -51,6 +90,7 @@ function getFinanceRecord(msg) { //get finance record by student id and school i
   var stuId = body.studentId;
   var schId = body.schoolId;
   var res = {"message" : "", "status" : 500, "data" : {}};
+  
 
   Finance.find({_id : stuId, schoolId : schId}, function (err, data) {
     if(err) {
@@ -68,6 +108,7 @@ function getFinanceRecord(msg) { //get finance record by student id and school i
     }
     //To do: send res to queue
     console.log(res);
+    sendToSqs(msg.responseQURL, res);
   });
 }
 
@@ -89,11 +130,13 @@ function createFinanceRecord(msg) {
       res.message = err.message;
       res.status = err.statusCode;
       //To do: send res to queue
+      sendToSqs(msg.responseQURL, res);
     }
     else if(data.length != 0) {
       res.status = 400;
       res.message = 'Duplicate record found. Bad Request.';
       //To do: send res to queue
+      sendToSqs(msg.responseQURL, res);
     }
     else {
       newRecord.save(function (err, newRecord, data) {
@@ -107,6 +150,7 @@ function createFinanceRecord(msg) {
           res.data = data;
           //To do: send res to queue
           console.log(res);
+          sendToSqs(msg.responseQURL, res);
         }
       });
     }
@@ -142,6 +186,7 @@ function updateFinanceRecord(msg) {
                                     console.log(res);
                                   }
                                   //To do: send res to queue
+                                  sendToSqs(msg.responseQURL, res);
   });
 }
 
@@ -157,11 +202,13 @@ function deleteFinanceRecord(msg) {
       res.status = err.statusCode;
       res.message = err.message;
       //To do: send res to queue
+      sendToSqs(msg.responseQURL, res);
     }
     else if(!data || data.length == 0) {
       res.message = "No finance record found. Bad Request.";
       res.status = 400;
       //To do: send res to queue
+      sendToSqs(msg.responseQURL, res);
     }
     else {
       Finance.remove({_id : stuId, schoolId : schId}, function (err, data) {
@@ -175,6 +222,7 @@ function deleteFinanceRecord(msg) {
           res.data = data;
         }
         //To do: send res to queue
+        sendToSqs(msg.responseQURL, res);
         console.log(res);
       });
     }  
