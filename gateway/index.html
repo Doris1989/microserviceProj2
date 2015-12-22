@@ -1,21 +1,52 @@
 <html>
+<head>
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<title> Micro Service and API project 2</title>
+</head>
+
+
+
 <body>
 <form>
-Client ID: <input type="text" name="cid">  <br>
-
-<p>Get finance records</p>
-<div id="div-frs">
-	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getFinanceRecords'">
+<div class="jumbotron">
+	<h2 align="center"> Welcome client. Send request to Finance or K-12 now </h2>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+	<h3>Client ID</h3>
+<div class="form-inline">
+	<input class="input-group" type="text" name="cid">
+</div>
+</div>
 </div>
 
-<p>Get finance record</p>
-<div id="div-fr">
-	Student ID: <input type="text" name="fr_stu_id">
-	School ID: <input type="text" name="fr_sch_id"> <br>
-	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getFinanceRecord'">
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Get finance records</h3>
+<div class="form-inline">
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getFinanceRecords'">
+</div>
+</div>
 </div>
 
-<p>Update finance record</p>
+<div class="panel panel-default">
+<div class="panel-heading">
+<h3>Get finance record</h3>
+<div class="form-inline">
+<div class="form-group" id="div-fr">
+	Student ID: <input class="form-control" type="text" name="fr_stu_id">
+	School ID: <input class="form-control" type="text" name="fr_sch_id"> <br>
+</div>
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getFinanceRecord'">
+</div>
+</div>
+</div>
+
+
+
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Update finance record</h3>
 <!--schoolName: body.schoolName,
 	studentName : body.studentName,
 	tuition : body.tuition,
@@ -23,38 +54,233 @@ Client ID: <input type="text" name="cid">  <br>
 	insurance : body.insurance,
 	equipmentFee : body.equipmentFee,
 	awards-->
-<div id="div-fu">
-	Student ID: <input type="text" name="fu_stu_id">
-	School ID: <input type="text" name="fu_sch_id"> <br>
-	Student Name: <input type="text" name="fu_stu_name"> <br>
-	School Name: <input type="text" name="fu_sch_name"> <br>
-	Tuition: <input type="text" name="fu_tuition">
-	Loan: <input type="text" name="fu_loan"> <br>
-	EquipmentFee: <input type="text" name="fu_equip">
-	Awards: <input type="text" name="fu_awards"> <br>
-	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/updateFinanceRecord'">
+<div class="form-inline">
+<div class="row" id="div-fu-row1">
+<div class="col-xs-2">
+	Student ID: <input class="form-control" type="text" name="fu_stu_id">
+</div>
+<div class="col-xs-2">
+	School ID: <input class="form-control" type="text" name="fu_sch_id">
+</div>
+<div class="col-xs-2">
+	Tuition: <input class="form-control" type="text" name="fu_tuition">
+</div>
+<div class="col-xs-2">
+	Loan: <input class="form-control" type="text" name="fu_loan">
+</div>
 </div>
 
-<p>Delete finance record</p>
-<div id="div-fd">
-	Student ID: <input type="text" name="fd_stu_id">
-	School ID: <input type="text" name="fd_sch_id"> <br>
-	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/deleteFinanceRecord'">
+<div class="row" id="div-fu-row2">
+<div class="col-xs-2">
+	Student Name: <input class="form-control" type="text" name="fu_stu_name">
+</div>
+<div class="col-xs-2">
+	School Name: <input class="form-control" type="text" name="fu_sch_name">
+</div>
+<div class="col-xs-2">
+	EquipmentFee: <input class="form-control" type="text" name="fu_equip">
+</div>
+<div class="col-xs-2">
+	Awards: <input class="form-control" type="text" name="fu_awards">
+</div>
+<div class="col-xs-2">
+	Insurance: <input class="form-control" type="text" name="fu_insurance">
+</div>
+</div>
+<div class="row">
+<div class="col-xs-2">
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/updateFinanceRecord'">
+</div>
+</div>
+</div>
+</div>
 </div>
 
-<p>Create finance record</p>
-<div id="div-fc">
-	Student ID: <input type="text" name="fc_stu_id">
-	School ID: <input type="text" name="fc_sch_id"> <br>
-	Student Name: <input type="text" name="fc_stu_name"> <br>
-	School Name: <input type="text" name="fc_sch_name"> <br>
-	Tuition: <input type="text" name="fc_tuition">
-	Loan: <input type="text" name="fc_loan"> <br>
-	EquipmentFee: <input type="text" name="fc_equip">
-	Awards: <input type="text" name="fc_awards"> <br>
-	<input type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/createFinanceRecord'">
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Delete finance record</h3>
+<div class="form-inline">
+<div class="form-group" id="div-fd">
+	Student ID: <input class="form-control" type="text" name="fd_stu_id">
+	School ID: <input class="form-control" type="text" name="fd_sch_id">
+</div>
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/deleteFinanceRecord'">
+</div>
+</div>
 </div>
 
+
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Create finance record</h3>
+<div class="form-inline">
+
+<div class="row" id="div-fc-row1">
+<div class="col-xs-2">
+	Student ID: <input class="form-control" type="text" name="fc_stu_id">
+</div>
+<div class="col-xs-2">
+	School ID: <input class="form-control" type="text" name="fc_sch_id">
+</div>
+<div class="col-xs-2">
+	Student Name: <input class="form-control" type="text" name="fc_stu_name">
+</div>
+<div class="col-xs-2">
+	School Name: <input class="form-control" type="text" name="fc_sch_name">
+</div>
+</div>
+
+<div class="row" id="div-fc-row2">
+<div class="col-xs-2">
+	Tuition: <input class="form-control" type="text" name="fc_tuition">
+</div>
+<div class="col-xs-2">
+	Loan: <input class="form-control" type="text" name="fc_loan">
+</div>
+<div class="col-xs-2">
+	EquipmentFee: <input class="form-control" type="text" name="fc_equip">
+</div>
+<div class="col-xs-2">
+	Awards: <input class="form-control" type="text" name="fc_awards">
+</div>
+<div class="col-xs-2">
+	Insurance: <input class="form-control" type="text" name="fc_insurance">
+</div>
+</div>
+
+<div class="row">
+<div class="col-xs-2">
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/createFinanceRecord'">
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Get K-12 records</h3>
+<div class="form-inline">
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getK12Records'">
+</div>
+</div>
+</div>
+
+<div class="panel panel-default">
+<div class="panel-heading">
+<h3>Get K-12 record</h3>
+<div class="form-inline">
+<div class="form-group" id="div-kr">
+	Student ID: <input class="form-control" type="text" name="kr_stu_id">
+	School ID: <input class="form-control" type="text" name="kr_sch_id"> <br>
+</div>
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/getK12Record'">
+</div>
+</div>
+</div>
+
+
+
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Update K-12 record</h3>
+<!--//":newschoolname": body.schoolName,
+          // ":newstudentname": body.studentName,
+          // ":newsyear": body.startYear,
+          // ":neweyear": body.endYear,
+          // ":newgrad": body.graduated,
+          // ":newdegree": body.degree
+-->
+<div class="form-inline">
+<div class="row" id="div-ku-row1">
+<div class="col-xs-2">
+	Student ID: <input class="form-control" type="text" name="ku_stu_id">
+</div>
+<div class="col-xs-2">
+	School ID: <input class="form-control" type="text" name="ku_sch_id">
+</div>
+<div class="col-xs-2">
+	Start Year: <input class="form-control" type="text" name="ku_startYear">
+</div>
+<div class="col-xs-2">
+	End Year: <input class="form-control" type="text" name="ku_endYear">
+</div>
+</div>
+
+<div class="row" id="div-ku-row2">
+<div class="col-xs-2">
+	Student Name: <input class="form-control" type="text" name="ku_stu_name">
+</div>
+<div class="col-xs-2">
+	School Name: <input class="form-control" type="text" name="ku_sch_name">
+</div>
+<div class="col-xs-2">
+	Is Graduated: <input class="form-control" type="text" name="ku_graduated">
+</div>
+<div class="col-xs-2">
+	Degree: <input class="form-control" type="text" name="ku_degree">
+</div>
+</div>
+<div class="row">
+<div class="col-xs-2">
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/updateK12Record'">
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Delete K-12 record</h3>
+<div class="form-inline">
+<div class="form-group" id="div-fd">
+	Student ID: <input class="form-control" type="text" name="kd_stu_id">
+	School ID: <input class="form-control" type="text" name="kd_sch_id">
+</div>
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/deleteK12Record'">
+</div>
+</div>
+</div>
+
+
+<div class="panel panel-default">
+<div class="panel-heading"><h3>Create K-12 record</h3>
+<div class="form-inline">
+
+<div class="row" id="div-kc-row1">
+<div class="col-xs-2">
+	Student ID: <input class="form-control" type="text" name="kc_stu_id">
+</div>
+<div class="col-xs-2">
+	School ID: <input class="form-control" type="text" name="kc_sch_id">
+</div>
+<div class="col-xs-2">
+	Start Year: <input class="form-control" type="text" name="kc_startYear">
+</div>
+<div class="col-xs-2">
+	End Year: <input class="form-control" type="text" name="kc_endYear">
+</div>
+</div>
+
+<div class="row" id="div-kc-row2">
+<div class="col-xs-2">
+	Student Name: <input class="form-control" type="text" name="kc_stu_name">
+</div>
+<div class="col-xs-2">
+	School Name: <input class="form-control" type="text" name="kc_sch_name">
+</div>
+<div class="col-xs-2">
+	Is Graduated: <input class="form-control" type="text" name="kc_graduated">
+</div>
+<div class="col-xs-2">
+	Degree: <input class="form-control" type="text" name="kc_degree">
+</div>
+</div>
+
+<div class="row">
+<div class="col-xs-2">
+	<input class="btn btn-default" type="submit" value="Request" onclick="form.action='http://127.0.0.1:9999/createK12Record'">
+</div>
+</div>
+</div>
+</div>
+</div>
 </form>
 </body>
 </html>

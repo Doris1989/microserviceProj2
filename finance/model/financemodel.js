@@ -1,5 +1,6 @@
 
 var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/microservice');
 
 var finance = new mongoose.Schema({
    	_id	: Number //_id is studentId

@@ -30,23 +30,6 @@ AWS.config.update({
 
 require('events').EventEmitter.prototype._maxListeners = 10000; //events listener..?
 
-// var sqsParams = {
-// 	QueueUrl : awsInfo.queueUrl,
-// 	Attributes: {
-// 		'Policy' : JSON.stringify({})
-// 	}
-// };
-
-//var sqs = new AWS.SQS();
-// sqs.setQueueAttributes(sqsParams, function(err, result) {
-// 	if (err !== null) {
-// 		console.log(util.inspect(err));
-// 		return;
-// 	}
-// });
-
-
-
 // var sqsGetParams = {
 //     QueueUrl: awsInfo.queueUrl,
 //     MaxNumberOfMessages: 1,
@@ -79,18 +62,18 @@ var sqs = new AWS.SQS({
 var receiveMessage = Q.nbind( sqs.receiveMessage, sqs );
 var deleteMessage = Q.nbind( sqs.deleteMessage, sqs );
 
+
+// ---------------------------------------------------------- //
+// continuously poll from queue
+// ---------------------------------------------------------- //
+
 function workflowError( type, error ) {
 
     error.type = type;
 
     return( error );
 
-};
-
-// ---------------------------------------------------------- //
-// continuously poll from queue
-// ---------------------------------------------------------- //
-
+}
 
 // When pulling messages from Amazon SQS, we can open up a long-poll which will hold open
 // until a message is available, for up to 20-seconds. If no message is returned in that
@@ -100,7 +83,7 @@ function workflowError( type, error ) {
 // itself, recursively.
 (function pollQueueForMessages() {
 
-    console.log( chalk.yellow( "Starting long-poll operation." ) );
+   // console.log( chalk.yellow( "Starting long-poll operation." ) );
 
     // Pull a message - we're going to keep the long-polling timeout short so as to
     // keep the demo a little bit more interesting.
@@ -127,7 +110,7 @@ function workflowError( type, error ) {
             else {
                 var message = data.Messages[0].Body;
                 msg = JSON.parse(message);
-                console.log(msg);
+                //console.log(msg);
                 if(msg.action == "getFinanceRecords") {
                     console.log("Call getFinanceRecords function:");
                     controller.getFinanceRecords(msg);
@@ -186,7 +169,7 @@ function workflowError( type, error ) {
             // for my business logic errors).
             switch ( error.type ) {
                 case "EmptyQueue":
-                    console.log( chalk.cyan( "Expected Error:", error.message ) );
+               //     console.log( chalk.cyan( "Expected Error:", error.message ) );
                 break;
                 default:
                     console.log( chalk.red( "Unexpected Error:", error.message ) );

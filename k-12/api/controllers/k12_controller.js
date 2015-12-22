@@ -1,6 +1,10 @@
 //Import the Data Models
 var K12 = require('../../model/k-12model')
+var awsInfo = require( "../../config/awsinfo.json" );
 var AWS = require("aws-sdk");
+
+var Q = require( "q" );
+var chalk = require( "chalk" );
 
 AWS.config.update({
   region: "us-east-1",
@@ -11,6 +15,38 @@ var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 
 var table = "K12";
 
+// Create an instance of our SQS Client.
+var sqs = new AWS.SQS({
+    region: awsInfo.region,
+    accessKeyId: awsInfo.accessKey,
+    secretAccessKey: awsInfo.secretKey,
+});
+
+var sendMessage = Q.nbind( sqs.sendMessage, sqs );
+
+
+sendToSqs = function(qurl, sqs_params){
+    sendMessage({
+        MessageBody: JSON.stringify(sqs_params),
+        QueueUrl: qurl
+    })
+    .then(
+        function handleSendResolve( data ) {
+
+            console.log( chalk.green( "Message sent:", data.MessageId ) );
+
+        }
+    )
+
+    // Catch any error (or rejection) that took place during processing.
+    .catch(
+        function handleReject( error ) {
+
+            console.log( chalk.red( "Unexpected Error:", error.message ) );
+
+        }
+    );
+}
 
 module.exports = {
   getK12Records: getK12Records,
@@ -39,13 +75,20 @@ function getK12Records(msg) {
             console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
             res.message = err.message;
             res.status = err.statusCode;
+            sendToSqs(msg.responseQURL, res);
         } else {
             console.log("Scan succeeded.");
             console.log(data);
+            console.log(typeof(data));
+            res.message = "Scan succeeded."
+            res.status = 200;
+            res.data = JSON.stringify(data);
+            sendToSqs(msg.responseQURL, res);
         }
-        res.status = 200;
+
         //To do:  res to queue
         console.log(res);
+
     }
 }
 
@@ -53,8 +96,8 @@ function getK12Records(msg) {
 
 function getK12Record(msg) { //get finance record by student id and school id
   var body = msg.body;
-  var stuId = body.stuId;
-  var schId = body.schId;
+  var stuId = body.studentId;
+  var schId = body.schoolId;
   var res = {"message" : "", "status" : 500, "data" : {}};
   var params = {
     TableName: table,
@@ -78,14 +121,25 @@ function getK12Record(msg) { //get finance record by student id and school id
           console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
           res.message = err.message;
           res.status = err.statusCode;
+          sendToSqs(msg.responseQURL, res);
       } else {
           // print all the movies
           console.log("Scan succeeded.");
           console.log(data);
+          if(data.Count==0){
+            res.status=404;
+            res.data = JSON.stringify(data);
+          }
+          else{
+            res.status = 200;
+            res.data = JSON.stringify(data);
+          }
+          sendToSqs(msg.responseQURL, res);
       }
-      res.status = 200;
+
       //To do:  res to queue
       console.log(res);
+      //sendToSqs(msg.responseQURL, res);
   }
 }
 
@@ -105,11 +159,15 @@ function createK12Record(msg) {
           res.status = err.statusCode;
       } else {
           console.log("Added item:", JSON.stringify(data, null, 2));
+          res.data = JSON.stringify(data);
+          res.status = 201;
       }
+        //To do:  res to queue
+      console.log(res);
+      sendToSqs(msg.responseQURL, res);
   });
-  res.status = 201;
-  //To do:  res to queue
-  console.log(res);
+
+
 }
 
 
@@ -145,18 +203,19 @@ function updateK12Record(msg) {
       } else {
           console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
           res.status=204;
+          res.data = JSON.stringify(data);
       }
+      console.log(res);
+      sendToSqs(msg.responseQURL, res);
   });
-  //To do:  res to queue
-  console.log(res);
 }
 
 
 function deleteK12Record(msg) {
   var body = msg.body;
   var res = {"message" : "", "status" : 500, "data" : {}};
-  var stuId = body.stuId;
-  var schId = body.schId;
+  var stuId = body.studentId;
+  var schId = body.schoolId;
 
   var params = {
     TableName: table,
@@ -174,10 +233,13 @@ function deleteK12Record(msg) {
       } else {
           console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
           res.status=204;
+          res.data = JSON.stringify(data);
       }
+      //To do:  res to queue
+      console.log(res);
+      sendToSqs(msg.responseQURL, res);
   });
-  //To do:  res to queue
-  console.log(res);
+
 }
 
 
