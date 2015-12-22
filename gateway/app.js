@@ -1,7 +1,7 @@
 var express = require("express");
 var app = express();
 
-var awsInfo = require( "../../test/awsInfo.json" );
+var awsInfo = require( "./awsInfo.json" );
 
 // Require libraries.
 var aws = require( "aws-sdk" );
@@ -59,7 +59,7 @@ getFromSqs = function(qurl, callback) {
     console.log( chalk.yellow( "Starting long-poll operation." ) );
 
     receiveMessage({
-        WaitTimeSeconds: 3, 
+        WaitTimeSeconds: 3,
         VisibilityTimeout: 10,
         QueueUrl: qurl
     })
@@ -155,7 +155,7 @@ app.get('/getFinanceRecords', function (req, res) {
 	    	res.send(response);
 	    });
 	});
-	
+
 })
 
 app.get('/getFinanceRecord', function (req, res) {
