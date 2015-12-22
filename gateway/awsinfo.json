@@ -1,9 +1,0 @@
-{
- 	"accessKey": "AKIAJN6NLY5JEH6ZZUFA",
- 	 "secretKey": "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",
- 	 "region": "us-east-1",
- 	 "finance_qurl": "https://sqs.us-east-1.amazonaws.com/428198350609/finance_request",
- 	 "finance_topicARN": "arn:aws:sqs:us-east-1:428198350609:finance_request",
- 	 "k12_qurl": "https://sqs.us-east-1.amazonaws.com/428198350609/k-12_request",
- 	 "k12_topicARN":"arn:aws:sqs:us-east-1:428198350609:k-12_request"
- }
