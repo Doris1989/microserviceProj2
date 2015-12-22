@@ -22,6 +22,8 @@ var sendMessage = Q.nbind( sqs.sendMessage, sqs );
 var receiveMessage = Q.nbind( sqs.receiveMessage, sqs );
 var deleteMessage = Q.nbind( sqs.deleteMessage, sqs );
 
+var finance_qurl = awsInfo.finance_qurl;
+var k12_qurl = awsInfo.k12_qurl;
 
 sendToSqs = function(qurl, sqs_params){
 	sendMessage({
@@ -149,7 +151,7 @@ app.get('/getFinanceRecords', function (req, res) {
 	    };
 	    console.log(JSON.stringify(finance_params));
 
-		sendToSqs(awsInfo.queueUrl, finance_params);
+		sendToSqs(finance_qurl, finance_params);
 
 	    getFromSqs(cid_qurl, function(response){
 	    	res.send(response);
@@ -180,7 +182,7 @@ app.get('/getFinanceRecord', function (req, res) {
         };
         console.log(JSON.stringify(finance_params));
 
-        sendToSqs(awsInfo.queueUrl, finance_params);
+        sendToSqs(finance_qurl, finance_params);
 
         getFromSqs(cid_qurl, function(response){
             res.send(response);
@@ -188,7 +190,13 @@ app.get('/getFinanceRecord', function (req, res) {
 
     });
 })
-
+// schoolName : body.schoolName,
+//                                 studentName : body.studentName,
+//                                 tuition : body.tuition,
+//                                 loan : body.loan,
+//                                 insurance : body.insurance,
+//                                 equipmentFee : body.equipmentFee,
+//                                 awards : body.awards});
 app.get('/updateFinanceRecord', function (req, res) {
 	var cid = req.query.cid;
     var cid_qurl;
@@ -204,14 +212,18 @@ app.get('/updateFinanceRecord', function (req, res) {
         console.log( chalk.blue( "Queue Created ", cid_qurl ) );
 
         var finance_params = {
-            body:{cid : cid, studentId : req.query.fu_stu_id, schoolId : req.query.fu_sch_id},
+            body:{cid : cid, studentId : req.query.fu_stu_id, schoolId : req.query.fu_sch_id,
+                  studentName: req.query.fu_stu_name, schoolName: req.query.fu_sch_name,
+                  tuition: req.query.fu_tuition, loan: req.query.fu_tuition,
+                  insurance: req.query.fu_insurance, equipmentFee: req.query.fu_equip,
+                  awards: req.query.fu_awards},
             action: "updateFinanceRecord",
             responseQURL: cid_qurl,
             responseQTopicARN: ""
         };
         console.log(JSON.stringify(finance_params));
 
-        sendToSqs(awsInfo.queueUrl, finance_params);
+        sendToSqs(finance_qurl, finance_params);
 
         getFromSqs(cid_qurl, function(response){
             res.send(response);
@@ -242,7 +254,7 @@ app.get('/deleteFinanceRecord', function (req, res) {
         };
         console.log(JSON.stringify(finance_params));
 
-        sendToSqs(awsInfo.queueUrl, finance_params);
+        sendToSqs(finance_qurl, finance_params);
 
         getFromSqs(cid_qurl, function(response){
             res.send(response);
@@ -266,14 +278,18 @@ app.get('/createFinanceRecord', function (req, res) {
         console.log( chalk.blue( "Queue Created ", cid_qurl ) );
 
         var finance_params = {
-            body:{cid : cid, studentId : req.query.fc_stu_id, schoolId : req.query.fc_stu_id},
+            body:{cid : cid, studentId : req.query.fc_stu_id, schoolId : req.query.fc_sch_id,
+                  studentName: req.query.fc_stu_name, schoolName: req.query.fc_sch_name,
+                  tuition: req.query.fc_tuition, loan: req.query.fc_tuition,
+                  insurance: req.query.fc_insurance, equipmentFee: req.query.fc_equip,
+                  awards: req.query.fc_awards},
             action: "createFinanceRecord",
             responseQURL: cid_qurl,
             responseQTopicARN: ""
         };
         console.log(JSON.stringify(finance_params));
 
-        sendToSqs(awsInfo.queueUrl, finance_params);
+        sendToSqs(finance_qurl, finance_params);
 
         getFromSqs(cid_qurl, function(response){
             res.send(response);
@@ -281,6 +297,176 @@ app.get('/createFinanceRecord', function (req, res) {
 
     });
 })
+
+app.get('/getK12Records', function (req, res) {
+    var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var k12_params = {
+            body:{cid : cid},
+            action: "getK12Records",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(k12_params));
+
+        sendToSqs(k12_qurl, k12_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+    });
+    
+})
+
+app.get('/getK12Record', function (req, res) {
+    var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var k12_params = {
+            body:{cid : cid, studentId : parseInt(req.query.kr_stu_id), schoolId : parseInt(req.query.kr_sch_id)},
+            action: "getK12Record",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(k12_params));
+
+        sendToSqs(k12_qurl, k12_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
+})
+
+
+app.get('/deleteK12Record', function (req, res) {
+    var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var k12_params = {
+            body:{cid : cid, studentId : parseInt(req.query.kd_stu_id), schoolId : parseInt(req.query.kd_sch_id)},
+            action: "deleteK12Record",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(k12_params));
+
+        sendToSqs(k12_qurl, k12_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
+})
+
+//":newschoolname": body.schoolName,
+          // ":newstudentname": body.studentName,
+          // ":newsyear": body.startYear,
+          // ":neweyear": body.endYear,
+          // ":newgrad": body.graduated,
+          // ":newdegree": body.degree
+          //
+app.get('/updateK12Record', function (req, res) {
+    var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var k12_params = {
+            body:{cid : cid, studentId : parseInt(req.query.ku_stu_id), schoolId : parseInt(req.query.ku_sch_id),
+                    schoolName: req.query.ku_sch_name, studentName: req.query.ku_stu_name,
+                    startYear: parseInt(req.query.ku_startYear), endYear: parseInt(req.query.ku_endYear),
+                    graduated: req.query.ku_graduated, degree: req.query.ku_degree},
+            action: "updateFinanceRecord",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(k12_params));
+
+        sendToSqs(k12_qurl, k12_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
+})
+
+app.get('/createK12Record', function (req, res) {
+    var cid = req.query.cid;
+    var cid_qurl;
+    sqs.createQueue({
+            QueueName: 'Client_'+cid
+        }, function(err, data) {
+        if (err) {
+            console.log(err, err.stack);
+            return;
+        }
+        cid_qurl=data.QueueUrl;
+
+        console.log( chalk.blue( "Queue Created ", cid_qurl ) );
+
+        var k12_params = {
+            body:{cid : cid, studentId : parseInt(req.query.kc_stu_id), schoolId : parseInt(req.query.kc_sch_id),
+                    schoolName: req.query.kc_sch_name, studentName: req.query.kc_stu_name,
+                    startYear: parseInt(req.query.kc_startYear), endYear: parseInt(req.query.kc_endYear),
+                    graduated: req.query.kc_graduated, degree: req.query.kc_degree},
+            action: "createK12Record",
+            responseQURL: cid_qurl,
+            responseQTopicARN: ""
+        };
+        console.log(JSON.stringify(k12_params));
+
+        sendToSqs(k12_qurl, k12_params);
+
+        getFromSqs(cid_qurl, function(response){
+            res.send(response);
+        });
+
+    });
+})
+
 
 var server = app.listen(9999, function () {
 

@@ -16,7 +16,7 @@ var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var table = "K12";
 
 // Create an instance of our SQS Client.
-var sqs = new aws.SQS({
+var sqs = new AWS.SQS({
     region: awsInfo.region,
     accessKeyId: awsInfo.accessKey,
     secretAccessKey: awsInfo.secretKey,
@@ -75,14 +75,20 @@ function getK12Records(msg) {
             console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
             res.message = err.message;
             res.status = err.statusCode;
+            sendToSqs(msg.responseQURL, res);
         } else {
             console.log("Scan succeeded.");
             console.log(data);
+            console.log(typeof(data));
+            res.message = "Scan succeeded."
+            res.status = 200;
+            res.data = JSON.stringify(data);
+            sendToSqs(msg.responseQURL, res);
         }
-        res.status = 200;
+        
         //To do:  res to queue
         console.log(res);
-        sendToSqs(msg.responseQURL, res);
+        
     }
 }
 
@@ -105,8 +111,6 @@ function getK12Record(msg) { //get finance record by student id and school id
          ":findcid": stuId,
          ":findsid": schId
     }
-    //To do  send res??
-
   };
 
   console.log("Scanning table.");
@@ -117,15 +121,19 @@ function getK12Record(msg) { //get finance record by student id and school id
           console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
           res.message = err.message;
           res.status = err.statusCode;
+          sendToSqs(msg.responseQURL, res);
       } else {
           // print all the movies
           console.log("Scan succeeded.");
           console.log(data);
+          res.status = 200;
+          res.data = JSON.stringify(data);
+          sendToSqs(msg.responseQURL, res);
       }
-      res.status = 200;
+      
       //To do:  res to queue
       console.log(res);
-      sendToSqs(msg.responseQURL, res);
+      //sendToSqs(msg.responseQURL, res);
   }
 }
 
@@ -145,12 +153,15 @@ function createK12Record(msg) {
           res.status = err.statusCode;
       } else {
           console.log("Added item:", JSON.stringify(data, null, 2));
+          res.data = JSON.stringify(data);
+          res.status = 201;
       }
+        //To do:  res to queue
+      console.log(res);
+      sendToSqs(msg.responseQURL, res);
   });
-  res.status = 201;
-  //To do:  res to queue
-  console.log(res);
-  sendToSqs(msg.responseQURL, res);
+  
+
 }
 
 
@@ -175,7 +186,6 @@ function updateK12Record(msg) {
           ":newdegree": body.degree
       },
       // ReturnValues:"UPDATED_NEW"
-      //? set res message
   };
 
   console.log("Attempting a conditional update...");
@@ -187,11 +197,11 @@ function updateK12Record(msg) {
       } else {
           console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
           res.status=204;
+          res.data = JSON.stringify(data);
       }
+      console.log(res);
+      sendToSqs(msg.responseQURL, res);
   });
-  //To do:  res to queue
-  console.log(res);
-  sendToSqs(msg.responseQURL, res);
 }
 
 
@@ -217,11 +227,13 @@ function deleteK12Record(msg) {
       } else {
           console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
           res.status=204;
+          res.data = JSON.stringify(data);
       }
+      //To do:  res to queue
+      console.log(res);
+      sendToSqs(msg.responseQURL, res);
   });
-  //To do:  res to queue
-  console.log(res);
-  sendToSqs(msg.responseQURL, res);
+  
 }
 
 
